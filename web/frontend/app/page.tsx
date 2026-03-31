@@ -23,6 +23,12 @@ interface ChartData {
   close: number;
 }
 
+interface TradeMarker {
+  time: string;
+  price: number;
+  type: 'buy' | 'sell';
+}
+
 export default function Home() {
   const [stockCode, setStockCode] = useState('600519');
   const [startDate, setStartDate] = useState('2023-01-01');
@@ -34,6 +40,8 @@ export default function Home() {
   const [selectedStrategy, setSelectedStrategy] = useState('ma');
   const [strategyParams, setStrategyParams] = useState<Record<string, any>>({});
   const [singleResult, setSingleResult] = useState<BacktestResult | null>(null);
+  const [markers, setMarkers] = useState<TradeMarker[]>([]);
+  const [showSingleChart, setShowSingleChart] = useState(false);
 
   const handleGetChartData = async () => {
     setLoading(true);
@@ -71,9 +79,13 @@ export default function Home() {
   const handleRunSingleBacktest = async () => {
     setLoading(true);
     setSingleResult(null);
+    setMarkers([]);
     try {
       const res = await stockApi.runBacktest(stockCode, startDate, endDate, selectedStrategy, strategyParams);
       setSingleResult(res.data.results);
+      setMarkers(res.data.markers || []);
+      setShowSingleChart(true);
+      setActiveTab('chart');
     } catch (error) {
       alert('回测失败：' + (error as any).response?.data?.detail || (error as any).message);
     } finally {
@@ -241,14 +253,22 @@ export default function Home() {
           {activeTab === 'chart' && (
             <div>
               <h2 className="text-lg font-semibold mb-4">
-                {stockCode} K 线图
+                {stockCode} K 线图 {showSingleChart && markers.length > 0 && `(含 ${selectedStrategy} 策略买卖点)`}
               </h2>
               {chartData.length > 0 ? (
-                <CandlestickChart data={chartData} height={400} />
+                <CandlestickChart data={chartData} height={400} markers={showSingleChart ? markers : []} />
               ) : (
                 <div className="text-center py-20 text-gray-400">
                   <p>点击「获取数据」查看 K 线图</p>
                 </div>
+              )}
+              {showSingleChart && (
+                <button
+                  onClick={() => { setShowSingleChart(false); setMarkers([]); }}
+                  className="mt-4 text-sm text-blue-500 hover:underline"
+                >
+                  清除买卖点标记
+                </button>
               )}
             </div>
           )}

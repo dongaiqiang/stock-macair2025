@@ -11,12 +11,20 @@ interface ChartData {
   close: number;
 }
 
+interface TradePoint {
+  time: string;
+  price: number;
+  type: 'buy' | 'sell';
+  date: string;
+}
+
 interface CandlestickChartProps {
   data: ChartData[];
   height?: number;
+  markers?: TradePoint[];
 }
 
-export default function CandlestickChart({ data, height = 400 }: CandlestickChartProps) {
+export default function CandlestickChart({ data, height = 400, markers = [] }: CandlestickChartProps) {
   const chartContainerRef = useRef<HTMLDivElement>(null);
   const chartRef = useRef<any>(null);
   const seriesRef = useRef<any>(null);
@@ -64,6 +72,20 @@ export default function CandlestickChart({ data, height = 400 }: CandlestickChar
     });
 
     candlestickSeries.setData(formattedData);
+
+    // 添加买卖点标记
+    if (markers && markers.length > 0) {
+      const seriesMarkers = markers.map(m => ({
+        time: new Date(m.time).getTime() / 1000 as Time,
+        position: m.type === 'buy' ? 'belowBar' : 'aboveBar',
+        color: m.type === 'buy' ? '#22c55e' : '#ef4444',
+        shape: m.type === 'buy' ? 'arrowUp' : 'arrowDown',
+        text: m.type === 'buy' ? 'B' : 'S',
+        size: 2,
+      }));
+      candlestickSeries.setMarkers(seriesMarkers);
+    }
+
     chart.timeScale().fitContent();
 
     chartRef.current = chart;

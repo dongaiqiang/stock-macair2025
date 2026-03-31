@@ -35,6 +35,7 @@ class BacktestEngine:
         self.printlog = printlog
         self.cerebro = None
         self.results = None
+        self.trades_log = []  # 记录买卖点
 
     def run(
         self,
@@ -53,6 +54,9 @@ class BacktestEngine:
         Returns:
             dict: 回测结果
         """
+        # 重置交易日志
+        self.trades_log = []
+
         # 创建大脑
         self.cerebro = bt.Cerebro()
 
@@ -64,8 +68,13 @@ class BacktestEngine:
         data = dataframe_to_backtest(df)
         self.cerebro.adddata(data)
 
-        # 添加策略
-        self.cerebro.addstrategy(strategy, printlog=self.printlog, **strategy_params)
+        # 添加策略（传入 trades_log 引用）
+        self.cerebro.addstrategy(
+            strategy,
+            printlog=self.printlog,
+            trades_log=self.trades_log,
+            **strategy_params
+        )
 
         # 设置分析器
         self.cerebro.addanalyzer(bt.analyzers.SharpeRatio, _name='sharpe')
@@ -78,9 +87,9 @@ class BacktestEngine:
         strat = self.results[0]
 
         # 提取结果
-        return self._extract_results(strat)
+        return self._extract_results(strat, df)
 
-    def _extract_results(self, strat) -> dict:
+    def _extract_results(self, strat, df: pd.DataFrame = None) -> dict:
         """提取回测结果"""
         # 最终资金
         final_value = self.cerebro.broker.getvalue()
@@ -115,6 +124,7 @@ class BacktestEngine:
             'won_trades': won_trades,
             'lost_trades': lost_trades,
             'win_rate': win_rate,
+            'trades_log': self.trades_log,  # 添加买卖点记录
         }
 
     def print_results(self, results: dict):

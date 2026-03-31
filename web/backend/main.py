@@ -271,6 +271,22 @@ async def run_single_backtest(request: BacktestRequest):
 
         logger.info(f"Backtest {request.strategy} for {request.stock_code}: return={results.get('total_return', 0):.2f}%")
 
+        # 处理买卖点数据
+        trades_log = results.get('trades_log', [])
+        markers = []
+        for trade in trades_log:
+            markers.append({
+                'time': trade['time'],
+                'price': trade['price'],
+                'type': 'buy'
+            })
+            if 'sell_time' in trade:
+                markers.append({
+                    'time': trade['sell_time'],
+                    'price': trade['sell_price'],
+                    'type': 'sell'
+                })
+
         return {
             "stock_code": request.stock_code,
             "strategy": request.strategy,
@@ -282,7 +298,8 @@ async def run_single_backtest(request: BacktestRequest):
                 "total_trades": results.get('total_trades', 0),
                 "win_rate": results.get('win_rate', 0),
                 "sharpe_ratio": results.get('sharpe_ratio'),
-            }
+            },
+            "markers": markers,
         }
     except Exception as e:
         logger.error(f"Error running backtest: {e}")

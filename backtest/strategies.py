@@ -6,6 +6,31 @@ import backtrader as bt
 import pandas as pd
 
 
+class TradeLogger:
+    """交易记录助手"""
+
+    def __init__(self, trades_log: list):
+        self.trades_log = trades_log
+        self.current_trade = None
+
+    def on_buy(self, dt: str, price: float):
+        """记录买入"""
+        self.current_trade = {
+            'time': dt,
+            'price': price,
+            'type': 'buy'
+        }
+
+    def on_sell(self, dt: str, price: float):
+        """记录卖出"""
+        if self.current_trade:
+            self.current_trade['sell_time'] = dt
+            self.current_trade['sell_price'] = price
+            if self.trades_log is not None:
+                self.trades_log.append(self.current_trade)
+            self.current_trade = None
+
+
 class MAStrategy(bt.Strategy):
     """双均线策略（支持止损止盈）"""
 
@@ -15,6 +40,7 @@ class MAStrategy(bt.Strategy):
         ('printlog', False),
         ('stop_loss', 0.0),      # 止损比例，如 0.05 表示 5%
         ('take_profit', 0.0),    # 止盈比例，如 0.10 表示 10%
+        ('trades_log', None),    # 买卖点记录列表
     )
 
     def __init__(self):
@@ -24,6 +50,7 @@ class MAStrategy(bt.Strategy):
         self.buycomm = None
         self.stop_price = None   # 止损价格
         self.profit_price = None  # 止盈价格
+        self.trade_logger = TradeLogger(self.params.trades_log)
 
         # 均线指标
         self.sma_fast = bt.indicators.SimpleMovingAverage(
@@ -41,12 +68,16 @@ class MAStrategy(bt.Strategy):
             return
 
         if order.status in [order.Completed]:
+            dt = self.datas[0].datetime.date(0).isoformat()
+
             if order.isbuy():
                 self.buyprice = order.executed.price
                 self.buycomm = order.executed.comm
+                self.trade_logger.on_buy(dt, float(order.executed.price))
                 if self.params.printlog:
                     self.log(f'BUY EXECUTED, Price: {order.executed.price:.2f}')
             else:
+                self.trade_logger.on_sell(dt, float(order.executed.price))
                 if self.params.printlog:
                     self.log(f'SELL EXECUTED, Price: {order.executed.price:.2f}')
 
@@ -111,11 +142,13 @@ class RSIStrategy(bt.Strategy):
         ('rsi_upper', 70),
         ('rsi_lower', 30),
         ('printlog', False),
+        ('trades_log', None),
     )
 
     def __init__(self):
         self.dataclose = self.datas[0].close
         self.order = None
+        self.trade_logger = TradeLogger(self.params.trades_log)
 
         # RSI 指标
         self.rsi = bt.indicators.RSI(
@@ -127,10 +160,13 @@ class RSIStrategy(bt.Strategy):
             return
 
         if order.status in [order.Completed]:
+            dt = self.datas[0].datetime.date(0).isoformat()
             if order.isbuy():
+                self.trade_logger.on_buy(dt, float(order.executed.price))
                 if self.params.printlog:
                     self.log(f'BUY EXECUTED, Price: {order.executed.price:.2f}')
             else:
+                self.trade_logger.on_sell(dt, float(order.executed.price))
                 if self.params.printlog:
                     self.log(f'SELL EXECUTED, Price: {order.executed.price:.2f}')
 
@@ -161,11 +197,13 @@ class BollStrategy(bt.Strategy):
         ('period', 20),
         ('devfactor', 2.0),
         ('printlog', False),
+        ('trades_log', None),
     )
 
     def __init__(self):
         self.dataclose = self.datas[0].close
         self.order = None
+        self.trade_logger = TradeLogger(self.params.trades_log)
 
         # 布林带指标
         self.boll = bt.indicators.BollingerBands(
@@ -180,10 +218,13 @@ class BollStrategy(bt.Strategy):
             return
 
         if order.status in [order.Completed]:
+            dt = self.datas[0].datetime.date(0).isoformat()
             if order.isbuy():
+                self.trade_logger.on_buy(dt, float(order.executed.price))
                 if self.params.printlog:
                     self.log(f'BUY EXECUTED, Price: {order.executed.price:.2f}')
             else:
+                self.trade_logger.on_sell(dt, float(order.executed.price))
                 if self.params.printlog:
                     self.log(f'SELL EXECUTED, Price: {order.executed.price:.2f}')
 
@@ -215,11 +256,13 @@ class MACDStrategy(bt.Strategy):
         ('slow', 26),
         ('signal', 9),
         ('printlog', False),
+        ('trades_log', None),
     )
 
     def __init__(self):
         self.dataclose = self.datas[0].close
         self.order = None
+        self.trade_logger = TradeLogger(self.params.trades_log)
 
         # MACD 指标
         self.macd = bt.indicators.MACD(
@@ -239,10 +282,13 @@ class MACDStrategy(bt.Strategy):
             return
 
         if order.status in [order.Completed]:
+            dt = self.datas[0].datetime.date(0).isoformat()
             if order.isbuy():
+                self.trade_logger.on_buy(dt, float(order.executed.price))
                 if self.params.printlog:
                     self.log(f'BUY EXECUTED, Price: {order.executed.price:.2f}')
             else:
+                self.trade_logger.on_sell(dt, float(order.executed.price))
                 if self.params.printlog:
                     self.log(f'SELL EXECUTED, Price: {order.executed.price:.2f}')
 
@@ -275,11 +321,13 @@ class TurtleStrategy(bt.Strategy):
         ('entry_period', 20),
         ('exit_period', 10),
         ('printlog', False),
+        ('trades_log', None),
     )
 
     def __init__(self):
         self.dataclose = self.datas[0].close
         self.order = None
+        self.trade_logger = TradeLogger(self.params.trades_log)
         self.highest = bt.indicators.Highest(self.datas[0], period=self.params.entry_period)
         self.lowest = bt.indicators.Lowest(self.datas[0], period=self.params.entry_period)
         self.exit_highest = bt.indicators.Highest(self.datas[0], period=self.params.exit_period)
@@ -289,10 +337,15 @@ class TurtleStrategy(bt.Strategy):
         if order.status in [order.Submitted, order.Accepted]:
             return
         if order.status in [order.Completed]:
-            if order.isbuy() and self.params.printlog:
-                self.log(f'BUY: {order.executed.price:.2f}')
-            elif self.params.printlog:
-                self.log(f'SELL: {order.executed.price:.2f}')
+            dt = self.datas[0].datetime.date(0).isoformat()
+            if order.isbuy():
+                self.trade_logger.on_buy(dt, float(order.executed.price))
+                if self.params.printlog:
+                    self.log(f'BUY: {order.executed.price:.2f}')
+            else:
+                self.trade_logger.on_sell(dt, float(order.executed.price))
+                if self.params.printlog:
+                    self.log(f'SELL: {order.executed.price:.2f}')
         self.order = None
 
     def next(self):
@@ -317,11 +370,13 @@ class MeanReversionStrategy(bt.Strategy):
         ('period', 20),
         ('std_dev', 2.0),
         ('printlog', False),
+        ('trades_log', None),
     )
 
     def __init__(self):
         self.dataclose = self.datas[0].close
         self.order = None
+        self.trade_logger = TradeLogger(self.params.trades_log)
         self.sma = bt.indicators.SimpleMovingAverage(self.datas[0], period=self.params.period)
         self.std = bt.indicators.StandardDeviation(self.datas[0], period=self.params.period)
         self.boll = bt.indicators.BollingerBands(self.datas[0], period=self.params.period, devfactor=self.params.std_dev)
@@ -330,10 +385,15 @@ class MeanReversionStrategy(bt.Strategy):
         if order.status in [order.Submitted, order.Accepted]:
             return
         if order.status in [order.Completed]:
-            if order.isbuy() and self.params.printlog:
-                self.log(f'BUY: {order.executed.price:.2f}')
-            elif self.params.printlog:
-                self.log(f'SELL: {order.executed.price:.2f}')
+            dt = self.datas[0].datetime.date(0).isoformat()
+            if order.isbuy():
+                self.trade_logger.on_buy(dt, float(order.executed.price))
+                if self.params.printlog:
+                    self.log(f'BUY: {order.executed.price:.2f}')
+            else:
+                self.trade_logger.on_sell(dt, float(order.executed.price))
+                if self.params.printlog:
+                    self.log(f'SELL: {order.executed.price:.2f}')
         self.order = None
 
     def next(self):
@@ -363,6 +423,7 @@ class TailBreakoutStrategy(bt.Strategy):
         ('lookback', 20),        # 回顾天数
         ('breakout_rate', 0.98), # 突破阈值（收盘价/最高价）
         ('printlog', False),
+        ('trades_log', None),
     )
 
     def __init__(self):
@@ -372,17 +433,22 @@ class TailBreakoutStrategy(bt.Strategy):
         self.datalow = self.datas[0].low
         self.order = None
         self.buy_price = None
+        self.trade_logger = TradeLogger(self.params.trades_log)
 
     def notify_order(self, order):
         if order.status in [order.Submitted, order.Accepted]:
             return
         if order.status in [order.Completed]:
+            dt = self.datas[0].datetime.date(0).isoformat()
             if order.isbuy():
                 self.buy_price = order.executed.price
+                self.trade_logger.on_buy(dt, float(order.executed.price))
                 if self.params.printlog:
-                    self.log(f'尾盘买入: {order.executed.price:.2f}')
-            elif self.params.printlog:
-                self.log(f'次日卖出: {order.executed.price:.2f}')
+                    self.log(f'尾盘买入：{order.executed.price:.2f}')
+            else:
+                self.trade_logger.on_sell(dt, float(order.executed.price))
+                if self.params.printlog:
+                    self.log(f'次日卖出：{order.executed.price:.2f}')
         self.order = None
 
     def next(self):
