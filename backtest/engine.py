@@ -81,6 +81,7 @@ class BacktestEngine:
         self.cerebro.addanalyzer(bt.analyzers.DrawDown, _name='drawdown')
         self.cerebro.addanalyzer(bt.analyzers.Returns, _name='returns')
         self.cerebro.addanalyzer(bt.analyzers.TradeAnalyzer, _name='trades')
+        self.cerebro.addanalyzer(bt.analyzers.TimeReturn, _name='time_return', timeframe=bt.TimeFrame.Days)
 
         # 运行回测
         self.results = self.cerebro.run()
@@ -114,6 +115,16 @@ class BacktestEngine:
 
         win_rate = (won_trades / total_trades * 100) if total_trades > 0 else 0
 
+        # 组合价值曲线
+        portfolio_values = []
+        if hasattr(strat.analyzers, 'time_return'):
+            time_returns = strat.analyzers.time_return.get_analysis()
+            cumulative = self.initial_cash
+            portfolio_values = [{'value': self.initial_cash}]
+            for date, ret in time_returns.items():
+                cumulative *= (1 + ret)
+                portfolio_values.append({'date': str(date), 'value': cumulative})
+
         return {
             'initial_cash': self.initial_cash,
             'final_value': final_value,
@@ -125,6 +136,7 @@ class BacktestEngine:
             'lost_trades': lost_trades,
             'win_rate': win_rate,
             'trades_log': self.trades_log,  # 添加买卖点记录
+            'portfolio_values': portfolio_values,  # 添加组合价值曲线
         }
 
     def print_results(self, results: dict):

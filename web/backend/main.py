@@ -319,6 +319,8 @@ async def run_all_strategies(request: StockRequest):
             set_cached_stock_data(request.stock_code, request.start_date, request.end_date, df)
 
         results_list = []
+        portfolio_values = {}  # 存储各策略的组合价值曲线
+
         for strategy_id, strategy_cls in STRATEGY_MAP.items():
             try:
                 results = run_backtest(
@@ -335,6 +337,9 @@ async def run_all_strategies(request: StockRequest):
                     "win_rate": results.get('win_rate', 0),
                     "final_value": results.get('final_value', 0),
                 })
+                # 存储组合价值曲线（如果可用）
+                if 'portfolio_values' in results:
+                    portfolio_values[strategy_id] = results['portfolio_values']
                 logger.info(f"Strategy {strategy_id}: return={results.get('total_return', 0):.2f}%")
             except Exception as e:
                 logger.error(f"Strategy {strategy_id} failed: {e}")
@@ -346,10 +351,15 @@ async def run_all_strategies(request: StockRequest):
         # 按收益率排序
         results_list.sort(key=lambda x: x.get('total_return', 0), reverse=True)
 
-        return {
+        response = {
             "stock_code": request.stock_code,
             "results": results_list
         }
+        # 如果有组合价值曲线数据，添加到响应中
+        if portfolio_values:
+            response["portfolio_curves"] = portfolio_values
+
+        return response
     except Exception as e:
         logger.error(f"Error running all strategies: {e}")
         raise HTTPException(status_code=400, detail=str(e))

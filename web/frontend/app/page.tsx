@@ -5,6 +5,7 @@ import { stockApi } from '@/lib/api';
 import CandlestickChart from '@/components/CandlestickChart';
 import StrategyCard from '@/components/StrategyCard';
 import StrategyParamsForm, { strategyNames } from '@/components/StrategyParamsForm';
+import StrategyComparisonChart from '@/components/StrategyComparisonChart';
 
 interface BacktestResult {
   strategy: string;
@@ -42,6 +43,7 @@ export default function Home() {
   const [singleResult, setSingleResult] = useState<BacktestResult | null>(null);
   const [markers, setMarkers] = useState<TradeMarker[]>([]);
   const [showSingleChart, setShowSingleChart] = useState(false);
+  const [portfolioCurves, setPortfolioCurves] = useState<any[]>([]);
 
   const handleGetChartData = async () => {
     setLoading(true);
@@ -68,12 +70,34 @@ export default function Home() {
     try {
       const res = await stockApi.runAllBacktests(stockCode, startDate, endDate);
       setBacktestResults(res.data.results);
+      // 处理组合价值曲线
+      if (res.data.portfolio_curves) {
+        const curves = Object.entries(res.data.portfolio_curves).map(([strategy, values]: [string, any]) => ({
+          strategy,
+          color: getStrategyColor(strategy),
+          data: values.map((v: any) => ({ date: v.date, value: v.value })),
+        }));
+        setPortfolioCurves(curves);
+      }
       setActiveTab('backtest');
     } catch (error) {
       alert('回测失败：' + (error as any).response?.data?.detail || (error as any).message);
     } finally {
       setLoading(false);
     }
+  };
+
+  const getStrategyColor = (strategy: string): string => {
+    const colors: Record<string, string> = {
+      ma: '#ef4444',
+      rsi: '#22c55e',
+      boll: '#3b82f6',
+      macd: '#f59e0b',
+      turtle: '#8b5cf6',
+      mean_reversion: '#ec4899',
+      tail_breakout: '#06b6d4',
+    };
+    return colors[strategy] || '#999999';
   };
 
   const handleRunSingleBacktest = async () => {
@@ -276,6 +300,22 @@ export default function Home() {
           {activeTab === 'backtest' && (
             <div>
               <h2 className="text-lg font-semibold mb-4">策略回测对比</h2>
+              {/* 策略收益曲线对比图 */}
+              {portfolioCurves.length > 0 && (
+                <div className="mb-6">
+                  <h3 className="text-sm font-medium text-gray-700 mb-2">策略收益曲线对比</h3>
+                  <StrategyComparisonChart curves={portfolioCurves} height={300} />
+                  <div className="mt-2 flex flex-wrap gap-3">
+                    {portfolioCurves.map(curve => (
+                      <div key={curve.strategy} className="flex items-center gap-1">
+                        <div className="w-3 h-3 rounded" style={{ backgroundColor: curve.color }}></div>
+                        <span className="text-xs text-gray-600">{curve.strategy}</span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+              {/* 策略结果卡片 */}
               {backtestResults.length > 0 ? (
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                   {backtestResults.map((result, index) => (
