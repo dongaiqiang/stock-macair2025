@@ -66,11 +66,14 @@ export default function StrategyComparisonChart({ curves, height = 300 }: Strate
         lineWidth: 2,
       });
 
-      // 格式化数据
-      const formattedData = curve.data.map(item => ({
-        time: new Date(item.date).getTime() / 1000 as Time,
-        value: item.value,
-      }));
+      // 格式化数据并过滤无效值
+      const formattedData = curve.data
+        .map(item => ({
+          time: new Date(item.date).getTime() / 1000 as Time,
+          value: item.value,
+        }))
+        .filter(item => !isNaN(item.time) && isFinite(item.time))
+        .sort((a, b) => a.time - b.time); // 按时间升序排序
 
       areaSeries.setData(formattedData);
     });

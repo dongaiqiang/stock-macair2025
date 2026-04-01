@@ -231,19 +231,25 @@ class TestCleanData:
     def test_clean_data_removes_inf(self):
         """测试清理函数移除 Inf 值"""
         df = pd.DataFrame({
-            'a': [1, 2, np.inf, 4],
-            'b': [1, -np.inf, 3, 4]
+            'a': [1.0, 2.0, float('inf'), 4.0],
+            'b': [1.0, float('-inf'), 3.0, 4.0]
         })
         result = clean_data(df)
-        assert not np.isinf(result).any().any()
+        # clean_data 将 inf 转换为 None
+        # 检查是否没有 inf 值（使用 applymap 检查每个元素）
+        for col in result.columns:
+            for val in result[col]:
+                assert not (isinstance(val, float) and np.isinf(val))
 
     def test_clean_data_removes_nan(self):
         """测试清理函数移除 NaN 值"""
         df = pd.DataFrame({
-            'a': [1, 2, np.nan, 4],
-            'b': [1, np.nan, 3, 4]
+            'a': [1.0, 2.0, np.nan, 4.0],
+            'b': [1.0, np.nan, 3.0, 4.0]
         })
         result = clean_data(df)
-        # clean_data 将 inf 转换为 nan，但不直接转换为 None
-        # JSON 序列化时需要进一步处理
-        assert True  # clean_data 主要是将 inf 转换为 nan
+        # clean_data 将 NaN 转换为 None
+        # 检查是否没有 NaN 值
+        for col in result.columns:
+            for val in result[col]:
+                assert not (isinstance(val, float) and np.isnan(val))

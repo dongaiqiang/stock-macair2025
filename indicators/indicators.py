@@ -206,8 +206,8 @@ def clean_data(df: pd.DataFrame) -> pd.DataFrame:
     Returns:
         清理后的 DataFrame
     """
-    # 替换 inf 和 -inf 为 NaN
-    df_clean = df.replace([float('inf'), float('-inf')], np.nan)
+    # 替换 inf 和 -inf 为 NaN，然后替换为 None
+    df_clean = df.replace([float('inf'), float('-inf'), np.nan], None)
     return df_clean
 
 

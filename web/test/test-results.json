@@ -1,0 +1,353 @@
+{
+  "config": {
+    "configFile": "/Users/mac2025/stock/web/test/playwright.config.ts",
+    "rootDir": "/Users/mac2025/stock/web/test",
+    "forbidOnly": false,
+    "fullyParallel": false,
+    "globalSetup": null,
+    "globalTeardown": null,
+    "globalTimeout": 0,
+    "grep": {},
+    "grepInvert": null,
+    "maxFailures": 0,
+    "metadata": {
+      "actualWorkers": 1
+    },
+    "preserveOutput": "always",
+    "projects": [
+      {
+        "outputDir": "/Users/mac2025/stock/web/test/test-results",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "id": "chromium",
+        "name": "chromium",
+        "testDir": "/Users/mac2025/stock/web/test",
+        "testIgnore": [],
+        "testMatch": [
+          "e2e.spec.ts"
+        ],
+        "timeout": 120000
+      }
+    ],
+    "quiet": false,
+    "reporter": [
+      [
+        "html",
+        {
+          "outputFolder": "./playwright-report",
+          "open": "never"
+        }
+      ],
+      [
+        "list",
+        null
+      ],
+      [
+        "json",
+        {
+          "outputFile": "./test-results.json"
+        }
+      ]
+    ],
+    "reportSlowTests": {
+      "max": 5,
+      "threshold": 300000
+    },
+    "runAgents": "none",
+    "shard": null,
+    "tags": [],
+    "updateSnapshots": "missing",
+    "updateSourceMethod": "patch",
+    "version": "1.58.2",
+    "workers": 1,
+    "webServer": {
+      "command": "cd ../frontend && npm run dev",
+      "url": "http://localhost:3000",
+      "timeout": 120000,
+      "reuseExistingServer": true
+    }
+  },
+  "suites": [
+    {
+      "title": "e2e.spec.ts",
+      "file": "e2e.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [],
+      "suites": [
+        {
+          "title": "量化交易系统 - 端到端测试",
+          "file": "e2e.spec.ts",
+          "line": 11,
+          "column": 6,
+          "specs": [
+            {
+              "title": "完整用户流程测试",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 120000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 0,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 15613,
+                      "errors": [],
+                      "stdout": [
+                        {
+                          "text": "🚀 开始端到端测试...\n"
+                        },
+                        {
+                          "text": "📍 步骤 1: 打开首页\n"
+                        },
+                        {
+                          "text": "📸 截图：/Users/mac2025/stock/web/test/screenshots/step-1-homepage.png\n"
+                        },
+                        {
+                          "text": "✅ 首页加载成功\n"
+                        },
+                        {
+                          "text": "📍 步骤 2: 输入股票代码 600519\n"
+                        },
+                        {
+                          "text": "📸 截图：/Users/mac2025/stock/web/test/screenshots/step-2-stock-input.png\n"
+                        },
+                        {
+                          "text": "✅ 股票代码输入成功\n"
+                        },
+                        {
+                          "text": "📍 步骤 3: 设置日期范围\n"
+                        },
+                        {
+                          "text": "📸 截图：/Users/mac2025/stock/web/test/screenshots/step-3-date-range.png\n"
+                        },
+                        {
+                          "text": "✅ 日期范围设置成功\n"
+                        },
+                        {
+                          "text": "📍 步骤 4: 点击「获取数据」按钮\n"
+                        },
+                        {
+                          "text": "⏳ 等待数据加载...\n"
+                        },
+                        {
+                          "text": "📸 截图：/Users/mac2025/stock/web/test/screenshots/step-4-chart-loaded.png\n"
+                        },
+                        {
+                          "text": "✅ 数据获取成功，K 线图已显示\n"
+                        },
+                        {
+                          "text": "📍 步骤 5: 验证 K 线图\n"
+                        },
+                        {
+                          "text": "✅ K 线图验证通过\n"
+                        },
+                        {
+                          "text": "📍 步骤 6: 切换到回测标签页\n"
+                        },
+                        {
+                          "text": "📍 步骤 7: 点击「全部回测」按钮\n"
+                        },
+                        {
+                          "text": "⏳ 等待回测完成...\n"
+                        },
+                        {
+                          "text": "📸 截图：/Users/mac2025/stock/web/test/screenshots/step-5-backtest-results.png\n"
+                        },
+                        {
+                          "text": "✅ 回测完成，结果已显示\n"
+                        },
+                        {
+                          "text": "📍 步骤 8: 验证策略结果\n"
+                        },
+                        {
+                          "text": "✅ 显示 10 个策略结果\n"
+                        },
+                        {
+                          "text": "📍 步骤 9: 移动端适配截图\n"
+                        },
+                        {
+                          "text": "📸 截图：/Users/mac2025/stock/web/test/screenshots/step-6-mobile-view.png\n"
+                        },
+                        {
+                          "text": "✅ 移动端视图截图完成\n"
+                        },
+                        {
+                          "text": "🎉 端到端测试完成！\n"
+                        },
+                        {
+                          "text": "📸 截图已保存到：/Users/mac2025/stock/web/test/screenshots\n"
+                        }
+                      ],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-04-01T00:13:23.952Z",
+                      "annotations": [],
+                      "attachments": [
+                        {
+                          "name": "screenshot",
+                          "contentType": "image/png",
+                          "path": "/Users/mac2025/stock/web/test/test-results/e2e-量化交易系统---端到端测试-完整用户流程测试-chromium/test-finished-1.png"
+                        },
+                        {
+                          "name": "trace",
+                          "contentType": "application/zip",
+                          "path": "/Users/mac2025/stock/web/test/test-results/e2e-量化交易系统---端到端测试-完整用户流程测试-chromium/trace.zip"
+                        }
+                      ]
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "b1c7859d981cc20c96be-f8efd56bbeedb19648c7",
+              "file": "e2e.spec.ts",
+              "line": 20,
+              "column": 7
+            },
+            {
+              "title": "单策略回测测试",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 120000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 0,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 10989,
+                      "errors": [],
+                      "stdout": [
+                        {
+                          "text": "🚀 开始单策略回测测试...\n"
+                        },
+                        {
+                          "text": "📍 输入股票代码\n"
+                        },
+                        {
+                          "text": "📍 设置日期范围\n"
+                        },
+                        {
+                          "text": "📍 选择策略：双均线\n"
+                        },
+                        {
+                          "text": "📍 运行单策略回测\n"
+                        },
+                        {
+                          "text": "⏳ 等待回测结果...\n"
+                        },
+                        {
+                          "text": "✅ 单策略回测结果验证通过\n"
+                        }
+                      ],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-04-01T00:13:48.605Z",
+                      "annotations": [],
+                      "attachments": [
+                        {
+                          "name": "screenshot",
+                          "contentType": "image/png",
+                          "path": "/Users/mac2025/stock/web/test/test-results/e2e-量化交易系统---端到端测试-单策略回测测试-chromium/test-finished-1.png"
+                        },
+                        {
+                          "name": "trace",
+                          "contentType": "application/zip",
+                          "path": "/Users/mac2025/stock/web/test/test-results/e2e-量化交易系统---端到端测试-单策略回测测试-chromium/trace.zip"
+                        }
+                      ]
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "b1c7859d981cc20c96be-7e74bb5271bcfbf4c982",
+              "file": "e2e.spec.ts",
+              "line": 111,
+              "column": 7
+            },
+            {
+              "title": "API 响应测试",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 120000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 0,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 6135,
+                      "errors": [],
+                      "stdout": [
+                        {
+                          "text": "🚀 开始 API 测试...\n"
+                        },
+                        {
+                          "text": "✅ 获取到 0 个 API 响应\n"
+                        },
+                        {
+                          "text": "🎉 API 测试完成！\n"
+                        }
+                      ],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-04-01T00:13:59.704Z",
+                      "annotations": [],
+                      "attachments": [
+                        {
+                          "name": "screenshot",
+                          "contentType": "image/png",
+                          "path": "/Users/mac2025/stock/web/test/test-results/e2e-量化交易系统---端到端测试-API-响应测试-chromium/test-finished-1.png"
+                        },
+                        {
+                          "name": "trace",
+                          "contentType": "application/zip",
+                          "path": "/Users/mac2025/stock/web/test/test-results/e2e-量化交易系统---端到端测试-API-响应测试-chromium/trace.zip"
+                        }
+                      ]
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "b1c7859d981cc20c96be-23afa1f7b3c725333f08",
+              "file": "e2e.spec.ts",
+              "line": 161,
+              "column": 7
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "errors": [],
+  "stats": {
+    "startTime": "2026-04-01T00:13:01.230Z",
+    "duration": 64797.426999999996,
+    "expected": 3,
+    "skipped": 0,
+    "unexpected": 0,
+    "flaky": 0
+  }
+}

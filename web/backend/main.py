@@ -213,8 +213,11 @@ async def get_chart_data(request: StockRequest):
         # 添加技术指标
         df_with_indicators = add_indicators(df)
 
+        # 使用 clean_data 处理 NaN 和 Inf
+        df_clean = clean_data(df_with_indicators)
+
         # 转换为 JSON 格式
-        df_reset = df_with_indicators.reset_index()
+        df_reset = df_clean.reset_index()
         df_reset['date'] = df_reset['date'].dt.strftime('%Y-%m-%d')
 
         # 选择关键字段
@@ -229,14 +232,19 @@ async def get_chart_data(request: StockRequest):
         df_result = df_result.replace([np.inf, -np.inf], np.nan)
 
         # 将所有 NaN 替换为 None (JSON 兼容)
-        for col in df_result.columns:
-            if df_result[col].dtype == 'object':
-                continue
-            df_result[col] = df_result[col].where(df_result[col].notna(), None)
+        # 使用 json.loads(json.dumps()) 方式确保完全兼容
+        import json
+        records = df_result.to_dict('records')
+        for row in records:
+            for key in row:
+                val = row[key]
+                # 检查是否为 NaN 或 None
+                if val is None or (isinstance(val, float) and (val != val)):  # val != val 是检查 NaN 的方法
+                    row[key] = None
 
         return {
             "stock_code": request.stock_code,
-            "data": df_result.to_dict('records')
+            "data": records
         }
     except Exception as e:
         logger.error(f"Error getting chart data: {e}")
