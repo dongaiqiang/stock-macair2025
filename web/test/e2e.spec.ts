@@ -9,15 +9,14 @@ if (!fs.existsSync(screenshotDir)) {
 }
 
 test.describe('量化交易系统 - 端到端测试', () => {
-  test.beforeEach(async ({ page }) => {
-    // 每个测试前清理截图目录
-    if (fs.existsSync(screenshotDir)) {
-      fs.rmSync(screenshotDir, { recursive: true, force: true });
-    }
-    fs.mkdirSync(screenshotDir, { recursive: true });
-  });
+  const screenshotDir = path.join(__dirname, 'screenshots');
 
   test('完整用户流程测试', async ({ page }) => {
+    // 确保截图目录存在
+    if (!fs.existsSync(screenshotDir)) {
+      fs.mkdirSync(screenshotDir, { recursive: true });
+    }
+
     console.log('🚀 开始端到端测试...');
     let step = 0;
 
